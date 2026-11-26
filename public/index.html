@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Satoria Flash Card Studio</title>
+    <link rel="icon" type="image/png" href="./assets/logos/satoria-group.png" />
+    <meta
+      name="description"
+      content="Aplikasi web korporat untuk membuat dan mengunduh kartu ucapan Welcome On Board dan Happy Birthday resolusi HD (1600x900) dengan penyuntingan foto dan ucapan berbasis AI."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Cinzel:wght@600;700;800&family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Dancing+Script:wght@600;700&family=Great+Vibes&family=JetBrains+Mono:wght@500&family=Kalam:wght@400;700&family=Lora:wght@500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@500;600;700&family=Pacifico&family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Sacramento&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background-color: #f6f7f9;
+        color: #0f172a;
+      }
+      .font-mono-tabular {
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      input[type="range"].studio-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 6px;
+        border-radius: 999px;
+        background: #e2e8f0;
+        outline: none;
+      }
+      input[type="range"].studio-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: #0f2942;
+        border: 2px solid #ffffff;
+        box-shadow: 0 1px 4px rgba(15, 41, 66, 0.3);
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col bg-[#F6F7F9] text-slate-900 antialiased">
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-slate-200/90">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4 sm:gap-8">
+        <a href="/" aria-label="Satoria Flash Card Studio" class="flex items-center gap-2.5 whitespace-nowrap shrink-0">
+          <img src="./assets/logos/satoria-group.png" alt="Satoria Group" class="h-7 sm:h-8 w-auto object-contain shrink-0" />
+          <span class="h-5 w-px bg-slate-200 hidden sm:inline-block shrink-0" aria-hidden="true"></span>
+          <span class="hidden sm:inline text-sm font-bold tracking-tight text-[#0F2942] whitespace-nowrap">Flash Card Studio</span>
+        </a>
+
+        <nav aria-label="Mode Kartu Ucapan" class="flex items-center gap-1 p-1 bg-slate-100 rounded-lg border border-slate-200/70">
+          <button
+            id="tab-welcome"
+            type="button"
+            class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 bg-white text-[#0F2942] shadow-xs"
+          >
+            Welcome On Board
+          </button>
+          <button
+            id="tab-birthday"
+            type="button"
+            class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 text-slate-600 hover:text-slate-900"
+          >
+            Happy Birthday
+          </button>
+        </nav>
+
+        <div class="hidden md:flex items-center text-xs text-slate-500 font-mono-tabular whitespace-nowrap shrink-0">
+          1600 × 900 PNG HD
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Studio -->
+    <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-5 sm:py-7">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Preview Stage -->
+        <section class="lg:col-span-7 lg:sticky lg:top-20" aria-label="Pratinjau Kartu Ucapan">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-100">
+              <h2 class="text-sm font-semibold text-slate-900">Pratinjau Kanvas HD</h2>
+              <div class="flex items-center gap-2 text-xs text-slate-500 font-mono-tabular">
+                <span>1600 × 900 px</span>
+                <span aria-hidden="true">·</span>
+                <span>16:9</span>
+                <span aria-hidden="true">·</span>
+                <span>PNG Tanpa Watermark</span>
+              </div>
+            </div>
+
+            <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-sm">
+              <canvas id="card-canvas" width="1600" height="900" class="w-full h-full block object-contain"></canvas>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                id="btn-download-png"
+                type="button"
+                class="min-h-[44px] px-5 py-2.5 rounded-xl bg-[#0F2942] hover:bg-[#173A5E] text-white text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <span>Download Gambar (PNG)</span>
+              </button>
+              <button
+                id="btn-copy-image"
+                type="button"
+                class="min-h-[44px] px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-sm font-semibold inline-flex items-center justify-center gap-2 transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <span id="copy-btn-label">Salin Gambar (Copy Image)</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Control Inspector -->
+        <section class="lg:col-span-5">
+          <div class="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-7">
+            <!-- 1. Logo & Penyesuaian -->
+            <div class="space-y-4">
+              <div>
+                <h3 class="text-sm font-semibold text-slate-900">Logo Perusahaan</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Pilih logo dan sesuaikan ukuran serta posisinya pada kanvas.</p>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                <button
+                  id="logo-satoria-group"
+                  type="button"
+                  class="min-h-[42px] px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors cursor-pointer bg-[#0F2942] text-white border-[#0F2942]"
+                >
+                  Satoria Group
+                </button>
+                <button
+                  id="logo-satoria-pharma"
+                  type="button"
+                  class="min-h-[42px] px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors cursor-pointer bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                >
+                  Satoria Pharma
+                </button>
+                <button
+                  id="logo-custom-btn"
+                  type="button"
+                  class="hidden min-h-[42px] px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors cursor-pointer bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+                >
+                  Logo Custom
+                </button>
+                <button
+                  id="btn-upload-logo"
+                  type="button"
+                  class="min-h-[42px] px-3.5 py-2 rounded-lg text-xs font-semibold border border-dashed border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  + Upload Logo
+                </button>
+                <button
+                  id="btn-clear-logo"
+                  type="button"
+                  class="hidden min-h-[42px] px-3 py-2 rounded-lg text-xs text-red-600 border border-slate-200 hover:bg-red-50 transition-colors cursor-pointer"
+                >
+                  Hapus Logo
+                </button>
+                <input id="input-upload-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" class="hidden" />
+              </div>
+
+              <div class="space-y-3 bg-slate-50/80 border border-slate-200/70 rounded-xl p-3.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-slate-700">Penyesuaian Ukuran & Posisi Logo</span>
+                  <button id="btn-reset-logo" type="button" class="text-xs font-medium text-[#0F2942] hover:underline cursor-pointer">
+                    Reset Logo
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs text-slate-600">Opsi Ukuran:</span>
+                  <button type="button" data-logo-size="0.75" class="logo-size-btn px-2.5 py-1 rounded-md text-xs font-medium border bg-white text-slate-700 border-slate-200 cursor-pointer">Kecil</button>
+                  <button type="button" data-logo-size="1" class="logo-size-btn px-2.5 py-1 rounded-md text-xs font-medium border bg-[#0F2942] text-white border-[#0F2942] cursor-pointer">Sedang</button>
+                  <button type="button" data-logo-size="1.6" class="logo-size-btn px-2.5 py-1 rounded-md text-xs font-medium border bg-white text-slate-700 border-slate-200 cursor-pointer">Besar</button>
+                  <button type="button" data-logo-size="2.4" class="logo-size-btn px-2.5 py-1 rounded-md text-xs font-medium border bg-white text-slate-700 border-slate-200 cursor-pointer">Ekstra</button>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                    <span>Ukuran Logo</span>
+                    <span id="logo-scale-val" class="font-mono-tabular text-slate-800">1.00x</span>
+                  </div>
+                  <input id="slider-logo-scale" type="range" min="0.4" max="3.0" step="0.05" value="1" class="w-full studio-slider" />
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                      <span>Geser X</span>
+                      <span id="logo-x-val" class="font-mono-tabular text-slate-800">0</span>
+                    </div>
+                    <input id="slider-logo-x" type="range" min="-400" max="80" step="2" value="0" class="w-full studio-slider" />
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                      <span>Geser Y</span>
+                      <span id="logo-y-val" class="font-mono-tabular text-slate-800">0</span>
+                    </div>
+                    <input id="slider-logo-y" type="range" min="-30" max="300" step="2" value="0" class="w-full studio-slider" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-slate-100" />
+
+            <!-- 2. Variasi Background & Generate Background AI -->
+            <div class="space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 id="bg-section-title" class="text-sm font-semibold text-slate-900">Variasi Background Welcome On Board</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Pilih variasi tema bawaan atau buat desain baru dengan AI.</p>
+                </div>
+                <button id="btn-clear-ai-bg" type="button" class="hidden text-xs font-semibold text-[#0F2942] hover:underline cursor-pointer">
+                  Kembali ke Tema Bawaan
+                </button>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="theme-grid"></div>
+
+              <div class="space-y-3 bg-slate-50/80 border border-slate-200/70 rounded-xl p-3.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <span class="text-xs font-semibold text-slate-700">Generate Background AI (Opsional)</span>
+                  <div id="ai-bg-tone-box" class="hidden items-center gap-1.5">
+                    <span class="text-[11px] text-slate-500">Teks:</span>
+                    <button id="tone-dark" type="button" class="px-2 py-0.5 rounded text-[11px] font-semibold border bg-[#0F2942] text-white border-[#0F2942] cursor-pointer">Gelap</button>
+                    <button id="tone-light" type="button" class="px-2 py-0.5 rounded text-[11px] font-semibold border bg-white text-slate-600 border-slate-300 cursor-pointer">Terang</button>
+                  </div>
+                </div>
+                <textarea
+                  id="ai-bg-instruction"
+                  rows="2"
+                  placeholder="Deskripsikan gaya background korporat yang diinginkan..."
+                  class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900"
+                >Latar putih gading bersih elegan dengan panel geometris motif batik emas kontemporer di sisi kiri dan aksen garis diagonal korporat modern.</textarea>
+                <button
+                  id="btn-generate-bg"
+                  type="button"
+                  class="w-full min-h-[40px] px-4 py-2 rounded-xl bg-[#0F2942] hover:bg-[#173A5E] text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  ✨ Generate Background AI
+                </button>
+              </div>
+            </div>
+
+            <hr class="border-slate-100" />
+
+            <!-- 3. Gaya Font Judul & Nama -->
+            <div class="space-y-4">
+              <div>
+                <h3 class="text-sm font-semibold text-slate-900">Gaya Font Judul & Nama</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Pilih gaya Serif formal atau Script santai untuk judul dan nama karyawan.</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div class="space-y-2.5">
+                  <div>
+                    <label for="select-title-font" class="block text-xs font-medium text-slate-700 mb-1">Font Judul Kartu</label>
+                    <select id="select-title-font" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 bg-white">
+                      <optgroup label="Serif Formal">
+                        <option value="Playfair Display" selected>Playfair Display — Serif Klasik Elegan</option>
+                        <option value="Cormorant Garamond">Cormorant Garamond — Serif Editorial Mewah</option>
+                        <option value="DM Serif Display">DM Serif Display — Serif Kontemporer Tegas</option>
+                        <option value="Cinzel">Cinzel — Serif Korporat Tegas</option>
+                        <option value="Lora">Lora — Serif Hangat Modern</option>
+                      </optgroup>
+                      <optgroup label="Script Santai & Modern">
+                        <option value="Caveat">Caveat — Script Brush Santai</option>
+                        <option value="Dancing Script">Dancing Script — Script Ramah</option>
+                        <option value="Great Vibes">Great Vibes — Kaligrafi Halus</option>
+                        <option value="Sacramento">Sacramento — Script Monoline Elegan</option>
+                        <option value="Montserrat">Montserrat — Sans Eksekutif Modern</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans — Sans Korporat Bersih</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div class="bg-slate-50/80 border border-slate-200/70 rounded-xl px-3 py-2">
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                      <span>Ukuran Judul</span>
+                      <span id="title-font-scale-val" class="font-mono-tabular text-slate-800">1.00x</span>
+                    </div>
+                    <input id="slider-title-font-scale" type="range" min="0.7" max="1.4" step="0.05" value="1" class="w-full studio-slider" />
+                  </div>
+                </div>
+                <div class="space-y-2.5">
+                  <div>
+                    <label for="select-name-font" class="block text-xs font-medium text-slate-700 mb-1">Font Nama Karyawan</label>
+                    <select id="select-name-font" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 bg-white">
+                      <optgroup label="Script Santai">
+                        <option value="Caveat" selected>Caveat — Script Brush Santai</option>
+                        <option value="Dancing Script">Dancing Script — Script Ekspresif</option>
+                        <option value="Great Vibes">Great Vibes — Kaligrafi Elegan</option>
+                        <option value="Sacramento">Sacramento — Signature Halus</option>
+                        <option value="Pacifico">Pacifico — Script Tebal Hangat</option>
+                        <option value="Kalam">Kalam — Tulisan Tangan Rapi</option>
+                      </optgroup>
+                      <optgroup label="Serif Formal & Sans">
+                        <option value="Playfair Display">Playfair Display — Serif Formal Klasik</option>
+                        <option value="Cormorant Garamond">Cormorant Garamond — Serif Formal Halus</option>
+                        <option value="DM Serif Display">DM Serif Display — Serif Tegas Berkarakter</option>
+                        <option value="Cinzel">Cinzel — Serif Formal Kapital</option>
+                        <option value="Montserrat">Montserrat — Sans Eksekutif Rapi</option>
+                        <option value="Plus Jakarta Sans">Plus Jakarta Sans — Sans Formal Rapi</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div class="bg-slate-50/80 border border-slate-200/70 rounded-xl px-3 py-2">
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                      <span>Ukuran Nama</span>
+                      <span id="name-font-scale-val" class="font-mono-tabular text-slate-800">1.00x</span>
+                    </div>
+                    <input id="slider-name-font-scale" type="range" min="0.7" max="1.5" step="0.05" value="1" class="w-full studio-slider" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-slate-100" />
+
+            <!-- 4. Foto & AI Studio -->
+            <div class="space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 class="text-sm font-semibold text-slate-900">Foto Karyawan & Edit AI</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Unggah foto portrait JPG/PNG/WEBP lalu sesuaikan atau rapikan dengan AI.</p>
+                </div>
+                <button
+                  id="btn-upload-photo"
+                  type="button"
+                  class="min-h-[42px] px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Upload Foto
+                </button>
+                <input id="input-upload-photo" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" />
+              </div>
+
+              <div class="space-y-2">
+                <span class="block text-xs font-medium text-slate-700">Preset Instruksi Cepat (1-Klik)</span>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" data-preset="enhance" class="preset-btn min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-medium border bg-[#FEF9EC] text-[#8F640C] border-[#D4AF37] cursor-pointer">
+                    ✨ Perjelas & Cerahkan
+                  </button>
+                  <button type="button" data-preset="formal" class="preset-btn min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-medium border bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer">
+                    👔 Ganti Jas Formal
+                  </button>
+                  <button type="button" data-preset="background" class="preset-btn min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-medium border bg-white text-slate-700 border-slate-200 hover:bg-slate-50 cursor-pointer">
+                    🖼️ Rapikan Background
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label for="ai-photo-instruction" class="block text-xs font-medium text-slate-700 mb-1.5">
+                  Instruksi Edit Foto AI
+                </label>
+                <textarea
+                  id="ai-photo-instruction"
+                  rows="2"
+                  class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0F2942]/20 focus:border-[#0F2942]"
+                ></textarea>
+              </div>
+
+              <div class="flex flex-wrap gap-2.5">
+                <button
+                  id="btn-run-photo-ai"
+                  type="button"
+                  class="flex-1 min-h-[44px] px-4 py-2.5 rounded-xl bg-[#B08016] hover:bg-[#966C10] text-white text-xs sm:text-sm font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  🪄 Generate / Edit Foto dengan AI
+                </button>
+                <button
+                  id="btn-reset-photo"
+                  type="button"
+                  class="hidden min-h-[44px] px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Kembalikan Foto Asli
+                </button>
+              </div>
+
+              <div class="pt-2 space-y-3 bg-slate-50/80 border border-slate-200/70 rounded-xl p-3.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-slate-700">Penyesuaian Posisi Bingkai Foto</span>
+                  <button id="btn-reset-frame" type="button" class="text-xs font-medium text-[#0F2942] hover:underline cursor-pointer">
+                    Reset Posisi
+                  </button>
+                </div>
+                <div>
+                  <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                    <span>Zoom Foto</span>
+                    <span id="zoom-val" class="font-mono-tabular text-slate-800">1.00x</span>
+                  </div>
+                  <input id="slider-zoom" type="range" min="0.6" max="2.0" step="0.02" value="1" class="w-full studio-slider" />
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                      <span>Geser X</span>
+                      <span id="offset-x-val" class="font-mono-tabular text-slate-800">0</span>
+                    </div>
+                    <input id="slider-x" type="range" min="-250" max="250" step="2" value="0" class="w-full studio-slider" />
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                      <span>Geser Y</span>
+                      <span id="offset-y-val" class="font-mono-tabular text-slate-800">0</span>
+                    </div>
+                    <input id="slider-y" type="range" min="-250" max="250" step="2" value="0" class="w-full studio-slider" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="border-slate-100" />
+
+            <!-- 4A. Welcome On Board Form -->
+            <div id="form-welcome" class="space-y-4">
+              <h3 class="text-sm font-semibold text-slate-900">Data Karyawan Baru (Welcome On Board)</h3>
+              <div class="space-y-3.5">
+                <div class="space-y-2.5 bg-slate-50/80 border border-slate-200/70 rounded-xl p-3.5">
+                  <div>
+                    <label for="select-welcome-data-font" class="block text-xs font-medium text-slate-700 mb-1">Font Teks Data Karyawan (Serif Formal, Script, atau Sans)</label>
+                    <select id="select-welcome-data-font" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-xs sm:text-sm text-slate-900 bg-white">
+                      <optgroup label="Sans Korporat & Modern">
+                        <option value="Plus Jakarta Sans" selected>Plus Jakarta Sans — Sans Korporat Rapi</option>
+                        <option value="DM Sans">DM Sans — Sans Geometris Bersih</option>
+                        <option value="Montserrat">Montserrat — Sans Eksekutif Tegas</option>
+                        <option value="Poppins">Poppins — Sans Modern Ramah</option>
+                        <option value="Space Grotesk">Space Grotesk — Sans Kontemporer Unik</option>
+                      </optgroup>
+                      <optgroup label="Serif Formal & Editorial">
+                        <option value="Playfair Display">Playfair Display — Serif Klasik Formal</option>
+                        <option value="Cormorant Garamond">Cormorant Garamond — Serif Mewah Halus</option>
+                        <option value="DM Serif Display">DM Serif Display — Serif Tegas Elegan</option>
+                        <option value="Cinzel">Cinzel — Serif Korporat Kapital</option>
+                        <option value="Lora">Lora — Serif Editorial Hangat</option>
+                        <option value="Merriweather">Merriweather — Serif Klasik Jelas</option>
+                      </optgroup>
+                      <optgroup label="Script / Tulisan Tangan">
+                        <option value="Caveat">Caveat — Script Brush Santai</option>
+                        <option value="Dancing Script">Dancing Script — Script Ramah Ekspresif</option>
+                        <option value="Kalam">Kalam — Tulisan Tangan Rapi</option>
+                        <option value="Great Vibes">Great Vibes — Kaligrafi Elegan</option>
+                        <option value="Sacramento">Sacramento — Script Signature Halus</option>
+                        <option value="Pacifico">Pacifico — Script Tebal Hangat</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                      <span>Ukuran Font Data Karyawan</span>
+                      <span id="welcome-font-scale-val" class="font-mono-tabular text-slate-800">1.00x</span>
+                    </div>
+                    <input id="slider-welcome-data-font-scale" type="range" min="0.75" max="1.4" step="0.05" value="1" class="w-full studio-slider" />
+                  </div>
+                </div>
+                <div>
+                  <label for="input-welcome-name" class="block text-xs font-medium text-slate-700 mb-1">Nama Karyawan</label>
+                  <input id="input-welcome-name" type="text" placeholder="Masukkan nama lengkap karyawan" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900" />
+                </div>
+                <div>
+                  <label for="select-company" class="block text-xs font-medium text-slate-700 mb-1">Company Name</label>
+                  <select id="select-company" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900 bg-white">
+                    <option value="PT Satoria Agro Industri">PT Satoria Agro Industri</option>
+                    <option value="PT Satoria Aneka Industri">PT Satoria Aneka Industri</option>
+                    <option value="PT Satoria Pharma">PT Satoria Pharma</option>
+                    <option value="PT Satoria Distribusi Lestari">PT Satoria Distribusi Lestari</option>
+                    <option value="manual">Ketik Manual...</option>
+                  </select>
+                  <input id="input-manual-company" type="text" placeholder="Masukkan nama perusahaan secara manual" class="hidden mt-2 w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900" />
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label for="input-position" class="block text-xs font-medium text-slate-700 mb-1">Position</label>
+                    <input id="input-position" type="text" placeholder="Jabatan / posisi" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900" />
+                  </div>
+                  <div>
+                    <label for="input-joindate" class="block text-xs font-medium text-slate-700 mb-1">Join Date</label>
+                    <input id="input-joindate" type="date" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900 bg-white cursor-pointer" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label for="input-email" class="block text-xs font-medium text-slate-700 mb-1">Email</label>
+                    <input id="input-email" type="email" placeholder="email@perusahaan.co.id" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900" />
+                  </div>
+                  <div>
+                    <label for="input-placement" class="block text-xs font-medium text-slate-700 mb-1">Placement</label>
+                    <input id="input-placement" type="text" placeholder="Lokasi penempatan" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4B. Happy Birthday Form -->
+            <div id="form-birthday" class="hidden space-y-4">
+              <h3 class="text-sm font-semibold text-slate-900">Data Ucapan Ulang Tahun (Happy Birthday)</h3>
+              <div class="space-y-3.5">
+                <div class="space-y-2.5 bg-slate-50/80 border border-slate-200/70 rounded-xl p-3.5">
+                  <div>
+                    <label for="select-birthday-body-font" class="block text-xs font-medium text-slate-700 mb-1">Font Teks Ucapan & Info (Serif Formal, Script, atau Sans)</label>
+                    <select id="select-birthday-body-font" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-xs sm:text-sm text-slate-900 bg-white">
+                      <optgroup label="Modern Sans">
+                        <option value="Plus Jakarta Sans" selected>Plus Jakarta Sans — Sans Korporat Bersih</option>
+                        <option value="DM Sans">DM Sans — Sans Modern Ringan</option>
+                        <option value="Poppins">Poppins — Sans Ceria & Ramah</option>
+                        <option value="Montserrat">Montserrat — Sans Eksekutif Rapi</option>
+                        <option value="Space Grotesk">Space Grotesk — Sans Kontemporer Unik</option>
+                      </optgroup>
+                      <optgroup label="Serif Formal & Hangat">
+                        <option value="Lora">Lora — Serif Puitis Hangat</option>
+                        <option value="Merriweather">Merriweather — Serif Hangat Jelas</option>
+                        <option value="Cormorant Garamond">Cormorant Garamond — Serif Editorial Mewah</option>
+                        <option value="Playfair Display">Playfair Display — Serif Klasik Elegan</option>
+                        <option value="DM Serif Display">DM Serif Display — Serif Formal Tegas</option>
+                        <option value="Cinzel">Cinzel — Serif Korporat Kapital</option>
+                      </optgroup>
+                      <optgroup label="Script / Tulisan Tangan">
+                        <option value="Kalam">Kalam — Tulisan Tangan Hangat</option>
+                        <option value="Caveat">Caveat — Tulisan Tangan Santai</option>
+                        <option value="Dancing Script">Dancing Script — Script Ucapan Ekspresif</option>
+                        <option value="Great Vibes">Great Vibes — Kaligrafi Elegan</option>
+                        <option value="Sacramento">Sacramento — Script Signature Halus</option>
+                        <option value="Pacifico">Pacifico — Script Tebal Hangat</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div>
+                    <div class="flex items-center justify-between text-xs text-slate-600 mb-1">
+                      <span>Ukuran Font Ucapan & Info</span>
+                      <span id="birthday-font-scale-val" class="font-mono-tabular text-slate-800">1.00x</span>
+                    </div>
+                    <input id="slider-birthday-body-font-scale" type="range" min="0.75" max="1.6" step="0.05" value="1" class="w-full studio-slider" />
+                  </div>
+                </div>
+                <div>
+                  <label for="input-birthday-name" class="block text-xs font-medium text-slate-700 mb-1">Nama Karyawan</label>
+                  <input id="input-birthday-name" type="text" placeholder="Masukkan nama lengkap karyawan" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900" />
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label for="input-birthday-age" class="block text-xs font-medium text-slate-700 mb-1">Usia (Tahun)</label>
+                    <input id="input-birthday-age" type="number" min="17" max="100" placeholder="Contoh: 28" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900 font-mono-tabular" />
+                  </div>
+                  <div>
+                    <label for="input-birthday-placement" class="block text-xs font-medium text-slate-700 mb-1">Placement</label>
+                    <input id="input-birthday-placement" type="text" placeholder="Lokasi penempatan" class="w-full min-h-[42px] rounded-xl border border-slate-300 px-3.5 py-2 text-sm text-slate-900" />
+                  </div>
+                </div>
+                <label class="inline-flex items-center gap-2.5 text-xs font-medium text-slate-700 cursor-pointer select-none min-h-[36px]">
+                  <input id="check-show-age" type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-[#0F2942]" />
+                  <span>Tampilkan usia pada kartu ucapan</span>
+                </label>
+                <div>
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                    <label for="input-birthday-wish" class="text-xs font-medium text-slate-700">Kotak Teks Ucapan</label>
+                    <button
+                      id="btn-generate-wish"
+                      type="button"
+                      class="min-h-[34px] px-3 py-1 rounded-lg bg-[#FEF9EC] hover:bg-[#FCEFC7] text-[#8F640C] border border-[#E5C35C] text-xs font-semibold transition-colors cursor-pointer"
+                    >
+                      ✨ Generate Ucapan AI
+                    </button>
+                  </div>
+                  <textarea
+                    id="input-birthday-wish"
+                    rows="3"
+                    placeholder="Ketik ucapan ulang tahun secara manual atau klik Generate Ucapan AI..."
+                    class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm text-slate-900 leading-relaxed"
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast-box" class="hidden fixed bottom-4 right-4 z-50 max-w-sm bg-white border border-slate-200 rounded-xl shadow-lg px-4 py-3 text-xs sm:text-sm text-slate-800"></div>
+
+    <script>
+      (function () {
+        const CANVAS_WIDTH = 1600;
+        const CANVAS_HEIGHT = 900;
+        const LOGO_STORAGE_KEY = "satoria_custom_logo_v1";
+
+        function getTodayIso() {
+          const d = new Date();
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        }
+
+        function formatIndoDate(iso) {
+          if (!iso) return "";
+          const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          if (!m) return iso;
+          const dt = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+          return new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric" }).format(dt);
+        }
+
+        const PRESETS = {
+          enhance: "Tingkatkan ketajaman detail wajah, resolusi gambar, dan cerahkan pencahayaan studio agar tampak lebih jernih, segar, dan profesional tanpa mengubah identitas wajah.",
+          formal: "Ubah pakaian menjadi setelan jas kantor korporat formal yang rapi (jas gelap profesional dan kemeja putih/blazer formal rapi) tanpa mengubah wajah, ekspresi, maupun gaya rambut.",
+          background: "Ganti latar belakang foto menjadi latar studio korporat polos berwarna abu-abu terang lembut yang bersih dan rapi dengan pencahayaan merata, pertahankan subjek asli secara utuh.",
+        };
+
+        const WELCOME_THEMES = [
+          { id: "ivory-gold", label: "Ivory Gold", top: "#C99E36", bottom: "#FAF7F0" },
+          { id: "navy-gold", label: "Navy Gold", top: "#0B1C2E", bottom: "#173452" },
+          { id: "pharma-mint", label: "Pharma Mint", top: "#0F766E", bottom: "#E6F6F2" },
+          { id: "warm-executive", label: "Warm Bronze", top: "#9A6B2F", bottom: "#FBF4EB" },
+        ];
+
+        const BIRTHDAY_THEMES = [
+          { id: "royal-gold", label: "Royal Gold", top: "#FCF8EE", bottom: "#EAD9B7" },
+          { id: "navy-gold", label: "Navy Gold", top: "#0B1C2E", bottom: "#173452" },
+          { id: "pharma-mint", label: "Pharma Mint", top: "#F1FAF7", bottom: "#D1EDE6" },
+          { id: "warm-festive", label: "Warm Festive", top: "#FFF8F0", bottom: "#F6DEC7" },
+        ];
+
+        const state = {
+          mode: "welcome",
+          logoMode: "satoria-group",
+          customLogoDataUrl: localStorage.getItem(LOGO_STORAGE_KEY) || null,
+          logoScale: 1,
+          logoOffsetX: 0,
+          logoOffsetY: 0,
+          welcomeTheme: "ivory-gold",
+          birthdayTheme: "royal-gold",
+          aiWelcomeBgDataUrl: null,
+          aiBirthdayBgDataUrl: null,
+          aiBgTextTone: "dark",
+          titleFont: "Playfair Display",
+          nameFont: "Caveat",
+          titleFontScale: 1,
+          nameFontScale: 1,
+          welcomeDataFont: "Plus Jakarta Sans",
+          welcomeDataFontScale: 1,
+          birthdayBodyFont: "Plus Jakarta Sans",
+          birthdayBodyFontScale: 1,
+          originalPhotoDataUrl: null,
+          currentPhotoDataUrl: null,
+          photoZoom: 1,
+          photoOffsetX: 0,
+          photoOffsetY: 0,
+          welcomeName: "",
+          companyOption: "PT Satoria Agro Industri",
+          customCompanyName: "",
+          position: "",
+          joinDate: getTodayIso(),
+          email: "",
+          placement: "",
+          birthdayName: "",
+          age: "",
+          showAge: true,
+          birthdayPlacement: "",
+          birthdayWish: "",
+        };
+
+        const joinInput = document.getElementById("input-joindate");
+        joinInput.value = state.joinDate;
+        joinInput.onclick = () => {
+          try { joinInput.showPicker && joinInput.showPicker(); } catch {}
+        };
+
+        const canvas = document.getElementById("card-canvas");
+        const ctx = canvas.getContext("2d");
+        const instructionEl = document.getElementById("ai-photo-instruction");
+        instructionEl.value = PRESETS.enhance;
+
+        let toastTimer = null;
+        function showToast(msg, isError) {
+          const box = document.getElementById("toast-box");
+          box.textContent = msg;
+          box.className =
+            "fixed bottom-4 right-4 z-50 max-w-sm rounded-xl shadow-lg px-4 py-3 text-xs sm:text-sm border " +
+            (isError ? "bg-red-50 border-red-200 text-red-800" : "bg-white border-slate-200 text-slate-800");
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => box.classList.add("hidden"), 4000);
+        }
+
+        function loadImage(src) {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = src;
+          });
+        }
+
+        function readFileAsDataUrl(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ""));
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        }
+
+        async function resizeDataUrl(dataUrl, maxDim, quality) {
+          const img = await loadImage(dataUrl);
+          let w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w >= h) { h = Math.round((h / w) * maxDim); w = maxDim; }
+            else { w = Math.round((w / h) * maxDim); h = maxDim; }
+          }
+          const c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          c.getContext("2d").drawImage(img, 0, 0, w, h);
+          const isPng = dataUrl.startsWith("data:image/png");
+          return {
+            dataUrl: isPng ? c.toDataURL("image/png") : c.toDataURL("image/jpeg", quality),
+            mimeType: isPng ? "image/png" : "image/jpeg",
+          };
+        }
+
+        function drawRoundedRectPath(x, y, w, h, r) {
+          const rad = Math.min(r, w / 2, h / 2);
+          ctx.beginPath();
+          ctx.moveTo(x + rad, y);
+          ctx.lineTo(x + w - rad, y);
+          ctx.quadraticCurveTo(x + w, y, x + w, y + rad);
+          ctx.lineTo(x + w, y + h - rad);
+          ctx.quadraticCurveTo(x + w, y + h, x + w - rad, y + h);
+          ctx.lineTo(x + rad, y + h);
+          ctx.quadraticCurveTo(x, y + h, x, y + h - rad);
+          ctx.lineTo(x, y + rad);
+          ctx.quadraticCurveTo(x, y, x + rad, y);
+          ctx.closePath();
+        }
+
+        function drawBatik(stroke) {
+          const tile = 72;
+          ctx.strokeStyle = stroke;
+          ctx.lineWidth = 1.6;
+          for (let gx = -tile; gx < 520; gx += tile) {
+            for (let gy = -tile; gy < CANVAS_HEIGHT + tile; gy += tile) {
+              ctx.beginPath();
+              ctx.moveTo(gx, gy - tile / 2);
+              ctx.lineTo(gx + tile / 2, gy);
+              ctx.lineTo(gx, gy + tile / 2);
+              ctx.lineTo(gx - tile / 2, gy);
+              ctx.closePath();
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.arc(gx, gy, 11, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          }
+        }
+
+        const LIGHT_PAL = { title: "#0F2942", accent: "#B08016", name: "#0F2942", label: "#64748B", colon: "#94A3B8", val: "#0F2942", info: "#475569", body: "#253447", div: "rgba(15,41,66,0.14)", bar: "#C59B27", dark: false };
+        const DARK_PAL = { title: "#FFFFFF", accent: "#E5C158", name: "#F0CD6E", label: "#CBD5E1", colon: "#94A3B8", val: "#FFFFFF", info: "#CBD5E1", body: "#E2E8F0", div: "rgba(229,193,88,0.28)", bar: "#D4AF37", dark: true };
+
+        function drawWelcomeBg(theme) {
+          if (theme === "navy-gold") {
+            const g = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            g.addColorStop(0, "#081726"); g.addColorStop(1, "#163556");
+            ctx.fillStyle = g; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(445, 0); ctx.lineTo(345, CANVAS_HEIGHT); ctx.lineTo(0, CANVAS_HEIGHT); ctx.closePath();
+            const pg = ctx.createLinearGradient(0, 0, 440, CANVAS_HEIGHT); pg.addColorStop(0, "#B88A24"); pg.addColorStop(1, "#7B570E");
+            ctx.fillStyle = pg; ctx.fill(); ctx.clip(); drawBatik("rgba(255,248,224,0.16)"); ctx.restore();
+            return DARK_PAL;
+          }
+          if (theme === "pharma-mint") {
+            const g = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            g.addColorStop(0, "#F7FCFA"); g.addColorStop(1, "#D8EFE8");
+            ctx.fillStyle = g; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(445, 0); ctx.lineTo(345, CANVAS_HEIGHT); ctx.lineTo(0, CANVAS_HEIGHT); ctx.closePath();
+            const pg = ctx.createLinearGradient(0, 0, 440, CANVAS_HEIGHT); pg.addColorStop(0, "#0F766E"); pg.addColorStop(1, "#0B4F4A");
+            ctx.fillStyle = pg; ctx.fill(); ctx.clip(); drawBatik("rgba(255,255,255,0.13)"); ctx.restore();
+            return { ...LIGHT_PAL, title: "#0E3A3A", accent: "#0F766E", name: "#0F766E", val: "#0E3A3A", bar: "#0D9488" };
+          }
+          if (theme === "warm-executive") {
+            const g = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            g.addColorStop(0, "#FFFBF6"); g.addColorStop(1, "#F1E3D0");
+            ctx.fillStyle = g; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(445, 0); ctx.lineTo(345, CANVAS_HEIGHT); ctx.lineTo(0, CANVAS_HEIGHT); ctx.closePath();
+            const pg = ctx.createLinearGradient(0, 0, 440, CANVAS_HEIGHT); pg.addColorStop(0, "#9A6B2F"); pg.addColorStop(1, "#6C4618");
+            ctx.fillStyle = pg; ctx.fill(); ctx.clip(); drawBatik("rgba(255,245,228,0.15)"); ctx.restore();
+            return { ...LIGHT_PAL, title: "#2B1E12", accent: "#9A6B2F", name: "#8C5B20", val: "#2B1E12", bar: "#B47B38" };
+          }
+          const g = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          g.addColorStop(0, "#FEFCF8"); g.addColorStop(1, "#F4EFE4");
+          ctx.fillStyle = g; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(445, 0); ctx.lineTo(345, CANVAS_HEIGHT); ctx.lineTo(0, CANVAS_HEIGHT); ctx.closePath();
+          const pg = ctx.createLinearGradient(0, 0, 440, CANVAS_HEIGHT); pg.addColorStop(0, "#C99E36"); pg.addColorStop(1, "#8A610C");
+          ctx.fillStyle = pg; ctx.fill(); ctx.clip(); drawBatik("rgba(255,248,224,0.17)"); ctx.restore();
+          ctx.save(); ctx.beginPath(); ctx.moveTo(445, 0); ctx.lineTo(345, CANVAS_HEIGHT); ctx.strokeStyle = "#E5C35C"; ctx.lineWidth = 5; ctx.stroke(); ctx.restore();
+          return LIGHT_PAL;
+        }
+
+        function drawBirthdayBg(theme) {
+          if (theme === "navy-gold") {
+            const g = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            g.addColorStop(0, "#081726"); g.addColorStop(1, "#163556");
+            ctx.fillStyle = g; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            return DARK_PAL;
+          }
+          if (theme === "pharma-mint") {
+            const g = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            g.addColorStop(0, "#F5FCFA"); g.addColorStop(1, "#D2EDE6");
+            ctx.fillStyle = g; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(390, 0); ctx.lineTo(295, CANVAS_HEIGHT); ctx.lineTo(0, CANVAS_HEIGHT); ctx.closePath();
+            const sg = ctx.createLinearGradient(0, 0, 390, CANVAS_HEIGHT); sg.addColorStop(0, "#0F766E"); sg.addColorStop(1, "#0B4F4A");
+            ctx.fillStyle = sg; ctx.fill(); ctx.restore();
+            return { ...LIGHT_PAL, title: "#0E3A3A", accent: "#0F766E", name: "#0F766E", info: "#2C5E5C", body: "#1F4443", bar: "#0D9488" };
+          }
+          if (theme === "warm-festive") {
+            const g = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            g.addColorStop(0, "#FFFBF6"); g.addColorStop(1, "#F7DFC8");
+            ctx.fillStyle = g; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            ctx.save(); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(360, 0); ctx.lineTo(260, CANVAS_HEIGHT); ctx.lineTo(0, CANVAS_HEIGHT); ctx.closePath();
+            const lg = ctx.createLinearGradient(0, 0, 350, CANVAS_HEIGHT); lg.addColorStop(0, "#D97706"); lg.addColorStop(1, "#9A3412");
+            ctx.fillStyle = lg; ctx.fill(); ctx.restore();
+            return { ...LIGHT_PAL, title: "#1E293B", accent: "#B45309", name: "#B45309", info: "#64442C", body: "#334155", bar: "#D97706" };
+          }
+          const g = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          g.addColorStop(0, "#FEFCF7"); g.addColorStop(1, "#EFE2C4");
+          ctx.fillStyle = g; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          ctx.strokeStyle = "rgba(184, 134, 11, 0.35)"; ctx.lineWidth = 2.5;
+          ctx.strokeRect(36, 36, CANVAS_WIDTH - 72, CANVAS_HEIGHT - 72);
+          return { ...LIGHT_PAL, name: "#A67712" };
+        }
+
+        async function drawAiBg(url, tone) {
+          const img = await loadImage(url);
+          const scale = Math.max(CANVAS_WIDTH / img.width, CANVAS_HEIGHT / img.height);
+          const dw = img.width * scale, dh = img.height * scale;
+          ctx.drawImage(img, (CANVAS_WIDTH - dw) / 2, (CANVAS_HEIGHT - dh) / 2, dw, dh);
+          const scrim = ctx.createLinearGradient(440, 0, CANVAS_WIDTH, 0);
+          if (tone === "light") {
+            scrim.addColorStop(0, "rgba(8,20,36,0.15)"); scrim.addColorStop(1, "rgba(8,20,36,0.68)");
+            ctx.fillStyle = scrim; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            return DARK_PAL;
+          }
+          scrim.addColorStop(0, "rgba(255,255,255,0.12)"); scrim.addColorStop(1, "rgba(255,253,248,0.76)");
+          ctx.fillStyle = scrim; ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          return LIGHT_PAL;
+        }
+
+        async function drawLogo(darkBg) {
+          const rightEdge = 1506 + state.logoOffsetX;
+          const topY = (state.logoMode === "satoria-pharma" ? 44 : 52) + state.logoOffsetY;
+          const scale = state.logoScale;
+          let logoSrc = "./assets/logos/satoria-group.png";
+          let maxW = 268 * scale;
+          let maxH = 98 * scale;
+          if (state.logoMode === "custom" && state.customLogoDataUrl) {
+            logoSrc = state.customLogoDataUrl;
+            maxW = 260 * scale;
+            maxH = 105 * scale;
+          } else if (state.logoMode === "satoria-pharma") {
+            logoSrc = "./assets/logos/satoria-pharma.png";
+            maxW = 190 * scale;
+            maxH = 138 * scale;
+          }
+          try {
+            const img = await loadImage(logoSrc);
+            const fit = Math.min(maxW / img.width, maxH / img.height);
+            const w = img.width * fit, h = img.height * fit;
+            const drawX = rightEdge - w, drawY = topY;
+            if (darkBg) {
+              const padFactor = Math.min(scale, 1.45);
+              const padX = 18 * padFactor, padY = 11 * padFactor, rad = 14 * padFactor;
+              ctx.save();
+              ctx.shadowColor = "rgba(0, 0, 0, 0.24)";
+              ctx.shadowBlur = 18;
+              ctx.shadowOffsetY = 6;
+              drawRoundedRectPath(drawX - padX, drawY - padY, w + padX * 2, h + padY * 2, rad);
+              ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+              ctx.fill();
+              ctx.restore();
+            }
+            ctx.drawImage(img, drawX, drawY, w, h);
+          } catch {}
+        }
+
+        async function drawPhoto() {
+          const frameX = 112, frameY = 158, frameW = 396, frameH = 584, pad = 18;
+          const innerX = frameX + pad, innerY = frameY + pad, innerW = frameW - pad * 2, innerH = frameH - pad * 2;
+          ctx.save();
+          ctx.shadowColor = "rgba(10, 22, 38, 0.26)"; ctx.shadowBlur = 36; ctx.shadowOffsetY = 16;
+          drawRoundedRectPath(frameX, frameY, frameW, frameH, 16);
+          ctx.fillStyle = "#FFFFFF"; ctx.fill();
+          ctx.restore();
+
+          ctx.save();
+          drawRoundedRectPath(innerX, innerY, innerW, innerH, 8);
+          ctx.clip();
+          if (state.currentPhotoDataUrl) {
+            try {
+              const img = await loadImage(state.currentPhotoDataUrl);
+              const scale = Math.max(innerW / img.width, innerH / img.height) * state.photoZoom;
+              const dw = img.width * scale, dh = img.height * scale;
+              const cx = innerX + innerW / 2 + state.photoOffsetX * 1.5;
+              const cy = innerY + innerH / 2 + state.photoOffsetY * 1.5;
+              ctx.fillStyle = "#F1F5F9"; ctx.fillRect(innerX, innerY, innerW, innerH);
+              ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+              ctx.restore();
+              return;
+            } catch {}
+          }
+          ctx.fillStyle = "#E2E8F0"; ctx.fillRect(innerX, innerY, innerW, innerH);
+          ctx.fillStyle = "#64748B"; ctx.font = '600 19px "Plus Jakarta Sans", sans-serif'; ctx.textAlign = "center";
+          ctx.fillText("Unggah Foto Karyawan", innerX + innerW / 2, innerY + innerH / 2);
+          ctx.restore();
+        }
+
+        function buildFontStr(fam, px, weight) {
+          const isScript = ["Caveat", "Great Vibes", "Dancing Script", "Pacifico", "Sacramento", "Kalam"].includes(fam);
+          const isSans = ["Plus Jakarta Sans", "DM Sans", "Montserrat", "Poppins", "Space Grotesk"].includes(fam);
+          const fb = isScript ? "cursive" : isSans ? "sans-serif" : "Georgia, serif";
+          const w = ["Great Vibes", "Pacifico", "Sacramento", "DM Serif Display"].includes(fam) ? 400 : weight;
+          return `${w} ${px}px "${fam}", ${fb}`;
+        }
+
+        function fitDynamicSize(text, fam, maxW, startSize, minSize, weight) {
+          let s = startSize;
+          while (s > minSize) {
+            ctx.font = buildFontStr(fam, s, weight);
+            if (ctx.measureText(text).width <= maxW) return s;
+            s -= 2;
+          }
+          return minSize;
+        }
+
+        function wrapLines(text, maxW) {
+          const words = text.trim().split(/\s+/).filter(Boolean);
+          const lines = [];
+          if (!words.length) return lines;
+          let line = words[0];
+          for (let i = 1; i < words.length; i++) {
+            const test = line + " " + words[i];
+            if (ctx.measureText(test).width <= maxW) line = test;
+            else { lines.push(line); line = words[i]; }
+          }
+          lines.push(line);
+          return lines;
+        }
+
+        async function renderCanvas() {
+          if (document.fonts && document.fonts.ready) await document.fonts.ready;
+          ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          if (state.mode === "welcome") {
+            const pal = state.aiWelcomeBgDataUrl
+              ? await drawAiBg(state.aiWelcomeBgDataUrl, state.aiBgTextTone)
+              : drawWelcomeBg(state.welcomeTheme);
+            await drawLogo(pal.dark);
+            await drawPhoto();
+            const startX = 576, maxW = 924;
+            ctx.fillStyle = pal.bar; ctx.fillRect(startX, 148, 72, 4);
+            ctx.textAlign = "left";
+            const ts1 = fitDynamicSize("Welcome", state.titleFont, maxW, Math.round(78 * state.titleFontScale), 36, 800);
+            const ts2 = fitDynamicSize("On Board!", state.titleFont, maxW, Math.round(82 * state.titleFontScale), 36, 800);
+            ctx.fillStyle = pal.title; ctx.font = buildFontStr(state.titleFont, ts1, 800);
+            ctx.fillText("Welcome", startX, 232);
+            ctx.fillStyle = pal.accent; ctx.font = buildFontStr(state.titleFont, ts2, 800);
+            ctx.fillText("On Board!", startX, 316);
+            const rawName = state.welcomeName.trim();
+            const dispName = rawName || "Nama Karyawan";
+            const isScr = ["Caveat", "Great Vibes", "Dancing Script", "Pacifico", "Sacramento", "Kalam"].includes(state.nameFont);
+            const ns = fitDynamicSize(dispName, state.nameFont, maxW, Math.round((isScr ? 74 : 56) * state.nameFontScale), 26, 700);
+            ctx.save(); if (!rawName) ctx.globalAlpha = 0.35;
+            ctx.font = buildFontStr(state.nameFont, ns, 700); ctx.fillStyle = pal.name;
+            ctx.fillText(dispName, startX, 412); ctx.restore();
+            ctx.fillStyle = pal.div; ctx.fillRect(startX, 446, maxW, 1.5);
+            const comp = state.companyOption === "manual" ? state.customCompanyName.trim() : state.companyOption;
+            const rows = [
+              ["Company Name", comp],
+              ["Position", state.position.trim()],
+              ["Join Date", formatIndoDate(state.joinDate)],
+              ["Email", state.email.trim()],
+              ["Placement", state.placement.trim()],
+            ];
+            const df = state.welcomeDataFont || "Plus Jakarta Sans";
+            const ds = state.welcomeDataFontScale || 1;
+            const isScrData = ["Caveat", "Great Vibes", "Dancing Script", "Pacifico", "Sacramento", "Kalam"].includes(df);
+            const bump = isScrData ? 5 : df === "Cormorant Garamond" ? 3 : 0;
+            const lblSize = Math.round((22 + bump) * ds);
+            const valBase = Math.round((23 + bump) * ds);
+            ctx.font = buildFontStr(df, lblSize, 600);
+            const maxLblW = rows.reduce((m, [l]) => Math.max(m, ctx.measureText(l).width), 0);
+            const colonX = startX + Math.max(198, Math.min(340, Math.ceil(maxLblW) + 20));
+            const valX = colonX + 26;
+            const valMaxW = Math.max(240, startX + maxW - valX);
+            const step = Math.round(58 * Math.max(0.84, Math.min(1.22, ds)));
+            let y = 508;
+            rows.forEach(([lbl, val]) => {
+              ctx.font = buildFontStr(df, lblSize, 600); ctx.fillStyle = pal.label; ctx.fillText(lbl, startX, y);
+              ctx.fillStyle = pal.colon; ctx.fillText(":", colonX, y);
+              if (val) {
+                let vs = valBase;
+                ctx.font = buildFontStr(df, vs, 600);
+                while (vs > 14 && ctx.measureText(val).width > valMaxW) { vs -= 1; ctx.font = buildFontStr(df, vs, 600); }
+                ctx.fillStyle = pal.val; ctx.fillText(val, valX, y);
+              }
+              y += step;
+            });
+          } else {
+            const pal = state.aiBirthdayBgDataUrl
+              ? await drawAiBg(state.aiBirthdayBgDataUrl, state.aiBgTextTone)
+              : drawBirthdayBg(state.birthdayTheme);
+            await drawLogo(pal.dark);
+            await drawPhoto();
+            const startX = 576, maxW = 920;
+            ctx.fillStyle = pal.bar; ctx.fillRect(startX, 162, 72, 4);
+            ctx.textAlign = "left";
+            const ts1 = fitDynamicSize("Happy", state.titleFont, maxW, Math.round(80 * state.titleFontScale), 36, 800);
+            const ts2 = fitDynamicSize("Birthday!", state.titleFont, maxW, Math.round(84 * state.titleFontScale), 36, 800);
+            ctx.fillStyle = pal.title; ctx.font = buildFontStr(state.titleFont, ts1, 800);
+            ctx.fillText("Happy", startX, 248);
+            ctx.fillStyle = pal.accent; ctx.font = buildFontStr(state.titleFont, ts2, 800);
+            ctx.fillText("Birthday!", startX, 334);
+            const rawName = state.birthdayName.trim();
+            const dispName = rawName || "Nama Karyawan";
+            const isScr = ["Caveat", "Great Vibes", "Dancing Script", "Pacifico", "Sacramento", "Kalam"].includes(state.nameFont);
+            const ns = fitDynamicSize(dispName, state.nameFont, maxW, Math.round((isScr ? 76 : 56) * state.nameFontScale), 26, 700);
+            ctx.save(); if (!rawName) ctx.globalAlpha = 0.35;
+            ctx.font = buildFontStr(state.nameFont, ns, 700); ctx.fillStyle = pal.name;
+            ctx.fillText(dispName, startX, 434); ctx.restore();
+            const bf = state.birthdayBodyFont || "Plus Jakarta Sans";
+            const bs = state.birthdayBodyFontScale || 1;
+            const isScrBody = ["Caveat", "Great Vibes", "Dancing Script", "Pacifico", "Sacramento", "Kalam"].includes(bf);
+            const bodyBump = isScrBody ? 6 : bf === "Cormorant Garamond" ? 4 : 0;
+            const ageStr = state.age.trim(), placeStr = state.birthdayPlacement.trim();
+            let info = "";
+            if (state.showAge && ageStr && placeStr) info = `${ageStr} Tahun  •  ${placeStr}`;
+            else if (state.showAge && ageStr) info = `${ageStr} Tahun`;
+            else if (placeStr) info = placeStr;
+            if (info) { ctx.font = buildFontStr(bf, Math.round((23 + Math.min(bodyBump, 4)) * bs), 600); ctx.fillStyle = pal.info; ctx.fillText(info, startX, 492); }
+            ctx.fillStyle = pal.div; ctx.fillRect(startX, 524, maxW, 1.5);
+            if (state.birthdayWish.trim()) {
+              ctx.font = buildFontStr(bf, Math.round((25 + bodyBump) * bs), 500); ctx.fillStyle = pal.body;
+              const lines = wrapLines(state.birthdayWish, maxW).slice(0, 6);
+              let ty = 582; const lh = Math.round((isScrBody ? 45 : 42) * Math.max(0.84, Math.min(1.35, bs)));
+              lines.forEach((l) => { if (ty <= CANVAS_HEIGHT - 36) { ctx.fillText(l, startX, ty); ty += lh; } });
+            }
+          }
+        }
+
+        function syncLogoButtons() {
+          const btns = {
+            "satoria-group": document.getElementById("logo-satoria-group"),
+            "satoria-pharma": document.getElementById("logo-satoria-pharma"),
+            custom: document.getElementById("logo-custom-btn"),
+          };
+          const clearBtn = document.getElementById("btn-clear-logo");
+          if (state.customLogoDataUrl) { btns.custom.classList.remove("hidden"); clearBtn.classList.remove("hidden"); }
+          else { btns.custom.classList.add("hidden"); clearBtn.classList.add("hidden"); }
+          Object.entries(btns).forEach(([k, el]) => {
+            const active = state.logoMode === k;
+            el.className = (k === "custom" && !state.customLogoDataUrl ? "hidden " : "") +
+              "min-h-[42px] px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors cursor-pointer " +
+              (active ? "bg-[#0F2942] text-white border-[#0F2942]" : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50");
+          });
+        }
+
+        function renderThemeButtons() {
+          const grid = document.getElementById("theme-grid");
+          grid.innerHTML = "";
+          const list = state.mode === "welcome" ? WELCOME_THEMES : BIRTHDAY_THEMES;
+          const activeId = state.mode === "welcome" ? state.welcomeTheme : state.birthdayTheme;
+          const hasAiBg = state.mode === "welcome" ? Boolean(state.aiWelcomeBgDataUrl) : Boolean(state.aiBirthdayBgDataUrl);
+          document.getElementById("bg-section-title").textContent =
+            state.mode === "welcome" ? "Variasi Background Welcome On Board" : "Variasi Background Happy Birthday";
+          const clearBtn = document.getElementById("btn-clear-ai-bg");
+          const toneBox = document.getElementById("ai-bg-tone-box");
+          if (hasAiBg) {
+            clearBtn.classList.remove("hidden");
+            toneBox.classList.remove("hidden"); toneBox.classList.add("flex");
+          } else {
+            clearBtn.classList.add("hidden");
+            toneBox.classList.add("hidden"); toneBox.classList.remove("flex");
+          }
+
+          list.forEach((t) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            const active = !hasAiBg && activeId === t.id;
+            btn.className = "min-h-[54px] p-2 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1.5 " +
+              (active ? "border-[#0F2942] ring-2 ring-[#0F2942]/15 bg-slate-50" : "border-slate-200 hover:border-slate-300 bg-white");
+            btn.innerHTML = `<div class="w-full h-5 rounded-md border border-black/10" style="background:linear-gradient(135deg,${t.top} 0%,${t.bottom} 100%)"></div><span class="text-[11px] font-semibold text-slate-800 truncate block">${t.label}</span>`;
+            btn.onclick = () => {
+              if (state.mode === "welcome") { state.welcomeTheme = t.id; state.aiWelcomeBgDataUrl = null; }
+              else { state.birthdayTheme = t.id; state.aiBirthdayBgDataUrl = null; }
+              renderThemeButtons();
+              renderCanvas();
+            };
+            grid.appendChild(btn);
+          });
+        }
+
+        function switchMode(mode) {
+          state.mode = mode;
+          const tw = document.getElementById("tab-welcome");
+          const tb = document.getElementById("tab-birthday");
+          if (mode === "welcome") {
+            tw.className = "px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 bg-white text-[#0F2942] shadow-xs";
+            tb.className = "px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 text-slate-600 hover:text-slate-900";
+            document.getElementById("form-welcome").classList.remove("hidden");
+            document.getElementById("form-birthday").classList.add("hidden");
+          } else {
+            tb.className = "px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 bg-white text-[#0F2942] shadow-xs";
+            tw.className = "px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-colors cursor-pointer whitespace-nowrap shrink-0 text-slate-600 hover:text-slate-900";
+            document.getElementById("form-birthday").classList.remove("hidden");
+            document.getElementById("form-welcome").classList.add("hidden");
+          }
+          renderThemeButtons();
+          renderCanvas();
+        }
+
+        document.getElementById("tab-welcome").onclick = () => switchMode("welcome");
+        document.getElementById("tab-birthday").onclick = () => switchMode("birthday");
+
+        document.getElementById("logo-satoria-group").onclick = () => { state.logoMode = "satoria-group"; syncLogoButtons(); renderCanvas(); };
+        document.getElementById("logo-satoria-pharma").onclick = () => { state.logoMode = "satoria-pharma"; syncLogoButtons(); renderCanvas(); };
+        document.getElementById("logo-custom-btn").onclick = () => { state.logoMode = "custom"; syncLogoButtons(); renderCanvas(); };
+        document.getElementById("btn-upload-logo").onclick = () => document.getElementById("input-upload-logo").click();
+        document.getElementById("input-upload-logo").onchange = async (e) => {
+          const file = e.target.files[0]; if (!file) return;
+          const raw = await readFileAsDataUrl(file);
+          const res = await resizeDataUrl(raw, 600, 0.95);
+          state.customLogoDataUrl = res.dataUrl; state.logoMode = "custom";
+          localStorage.setItem(LOGO_STORAGE_KEY, res.dataUrl);
+          syncLogoButtons(); renderCanvas(); showToast("Logo custom tersimpan di browser.", false);
+        };
+        document.getElementById("btn-clear-logo").onclick = () => {
+          localStorage.removeItem(LOGO_STORAGE_KEY);
+          state.customLogoDataUrl = null; state.logoMode = "satoria-group";
+          syncLogoButtons(); renderCanvas(); showToast("Logo custom dihapus.", false);
+        };
+
+        document.querySelectorAll(".logo-size-btn").forEach((b) => {
+          b.onclick = () => {
+            state.logoScale = parseFloat(b.dataset.logoSize);
+            document.getElementById("slider-logo-scale").value = String(state.logoScale);
+            document.getElementById("logo-scale-val").textContent = state.logoScale.toFixed(2) + "x";
+            renderCanvas();
+          };
+        });
+        document.getElementById("slider-logo-scale").oninput = (e) => {
+          state.logoScale = parseFloat(e.target.value);
+          document.getElementById("logo-scale-val").textContent = state.logoScale.toFixed(2) + "x";
+          renderCanvas();
+        };
+        document.getElementById("slider-logo-x").oninput = (e) => {
+          state.logoOffsetX = parseInt(e.target.value, 10);
+          document.getElementById("logo-x-val").textContent = String(state.logoOffsetX);
+          renderCanvas();
+        };
+        document.getElementById("slider-logo-y").oninput = (e) => {
+          state.logoOffsetY = parseInt(e.target.value, 10);
+          document.getElementById("logo-y-val").textContent = String(state.logoOffsetY);
+          renderCanvas();
+        };
+        document.getElementById("btn-reset-logo").onclick = () => {
+          state.logoScale = 1; state.logoOffsetX = 0; state.logoOffsetY = 0;
+          document.getElementById("slider-logo-scale").value = "1";
+          document.getElementById("slider-logo-x").value = "0";
+          document.getElementById("slider-logo-y").value = "0";
+          document.getElementById("logo-scale-val").textContent = "1.00x";
+          document.getElementById("logo-x-val").textContent = "0";
+          document.getElementById("logo-y-val").textContent = "0";
+          renderCanvas();
+        };
+
+        document.getElementById("btn-generate-bg").onclick = async () => {
+          const btn = document.getElementById("btn-generate-bg");
+          btn.disabled = true; btn.textContent = "Membuat Background AI...";
+          try {
+            const resp = await fetch("/api/ai", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "generate_background", mode: state.mode, instruction: document.getElementById("ai-bg-instruction").value.trim() }),
+            });
+            const data = await resp.json();
+            if (!resp.ok || !data.imageDataUrl) throw new Error(data.error || "Gagal membuat background.");
+            if (state.mode === "welcome") state.aiWelcomeBgDataUrl = data.imageDataUrl;
+            else state.aiBirthdayBgDataUrl = data.imageDataUrl;
+            state.aiBgTextTone = data.textTone === "light" ? "light" : "dark";
+            renderThemeButtons(); renderCanvas(); showToast("Background AI berhasil diterapkan.", false);
+          } catch (err) { showToast(err.message || "Gagal membuat background AI.", true); }
+          finally { btn.disabled = false; btn.textContent = "✨ Generate Background AI"; }
+        };
+        document.getElementById("select-title-font").onchange = (e) => { state.titleFont = e.target.value; renderCanvas(); };
+        document.getElementById("select-name-font").onchange = (e) => { state.nameFont = e.target.value; renderCanvas(); };
+        document.getElementById("slider-title-font-scale").oninput = (e) => { state.titleFontScale = parseFloat(e.target.value); document.getElementById("title-font-scale-val").textContent = state.titleFontScale.toFixed(2) + "x"; renderCanvas(); };
+        document.getElementById("slider-name-font-scale").oninput = (e) => { state.nameFontScale = parseFloat(e.target.value); document.getElementById("name-font-scale-val").textContent = state.nameFontScale.toFixed(2) + "x"; renderCanvas(); };
+        document.getElementById("select-welcome-data-font").onchange = (e) => { state.welcomeDataFont = e.target.value; renderCanvas(); };
+        document.getElementById("slider-welcome-data-font-scale").oninput = (e) => { state.welcomeDataFontScale = parseFloat(e.target.value); document.getElementById("welcome-font-scale-val").textContent = state.welcomeDataFontScale.toFixed(2) + "x"; renderCanvas(); };
+        document.getElementById("select-birthday-body-font").onchange = (e) => { state.birthdayBodyFont = e.target.value; renderCanvas(); };
+        document.getElementById("slider-birthday-body-font-scale").oninput = (e) => { state.birthdayBodyFontScale = parseFloat(e.target.value); document.getElementById("birthday-font-scale-val").textContent = state.birthdayBodyFontScale.toFixed(2) + "x"; renderCanvas(); };
+        document.getElementById("btn-clear-ai-bg").onclick = () => {
+          if (state.mode === "welcome") state.aiWelcomeBgDataUrl = null; else state.aiBirthdayBgDataUrl = null;
+          renderThemeButtons(); renderCanvas();
+        };
+        document.getElementById("tone-dark").onclick = () => { state.aiBgTextTone = "dark"; renderCanvas(); };
+        document.getElementById("tone-light").onclick = () => { state.aiBgTextTone = "light"; renderCanvas(); };
+
+        document.getElementById("btn-upload-photo").onclick = () => document.getElementById("input-upload-photo").click();
+        document.getElementById("input-upload-photo").onchange = async (e) => {
+          const file = e.target.files[0]; if (!file) return;
+          const raw = await readFileAsDataUrl(file);
+          const res = await resizeDataUrl(raw, 1400, 0.92);
+          state.originalPhotoDataUrl = res.dataUrl; state.currentPhotoDataUrl = res.dataUrl;
+          document.getElementById("btn-reset-photo").classList.add("hidden");
+          renderCanvas(); showToast("Foto karyawan berhasil dimuat.", false);
+        };
+
+        document.querySelectorAll(".preset-btn").forEach((btn) => {
+          btn.onclick = () => { instructionEl.value = PRESETS[btn.dataset.preset] || ""; };
+        });
+
+        document.getElementById("btn-run-photo-ai").onclick = async () => {
+          if (!state.currentPhotoDataUrl) { showToast("Silakan unggah foto terlebih dahulu.", true); return; }
+          const btn = document.getElementById("btn-run-photo-ai");
+          btn.disabled = true; btn.textContent = "Memproses Foto AI...";
+          try {
+            const prepared = await resizeDataUrl(state.currentPhotoDataUrl, 1280, 0.9);
+            const resp = await fetch("/api/ai", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "edit_photo", imageBase64: prepared.dataUrl, mimeType: prepared.mimeType, instruction: instructionEl.value.trim() }),
+            });
+            const data = await resp.json();
+            if (!resp.ok || !data.imageDataUrl) throw new Error(data.error || "Gagal memproses AI.");
+            state.currentPhotoDataUrl = data.imageDataUrl;
+            document.getElementById("btn-reset-photo").classList.remove("hidden");
+            renderCanvas(); showToast("Foto berhasil disunting oleh AI.", false);
+          } catch (err) { showToast(err.message || "Terjadi kesalahan AI.", true); }
+          finally { btn.disabled = false; btn.textContent = "🪄 Generate / Edit Foto dengan AI"; }
+        };
+
+        document.getElementById("btn-reset-photo").onclick = () => {
+          if (state.originalPhotoDataUrl) {
+            state.currentPhotoDataUrl = state.originalPhotoDataUrl;
+            document.getElementById("btn-reset-photo").classList.add("hidden");
+            renderCanvas(); showToast("Foto dikembalikan ke gambar asli.", false);
+          }
+        };
+
+        document.getElementById("slider-zoom").oninput = (e) => { state.photoZoom = parseFloat(e.target.value); document.getElementById("zoom-val").textContent = state.photoZoom.toFixed(2) + "x"; renderCanvas(); };
+        document.getElementById("slider-x").oninput = (e) => { state.photoOffsetX = parseInt(e.target.value, 10); document.getElementById("offset-x-val").textContent = String(state.photoOffsetX); renderCanvas(); };
+        document.getElementById("slider-y").oninput = (e) => { state.photoOffsetY = parseInt(e.target.value, 10); document.getElementById("offset-y-val").textContent = String(state.photoOffsetY); renderCanvas(); };
+        document.getElementById("btn-reset-frame").onclick = () => {
+          state.photoZoom = 1; state.photoOffsetX = 0; state.photoOffsetY = 0;
+          document.getElementById("slider-zoom").value = "1"; document.getElementById("slider-x").value = "0"; document.getElementById("slider-y").value = "0";
+          document.getElementById("zoom-val").textContent = "1.00x"; document.getElementById("offset-x-val").textContent = "0"; document.getElementById("offset-y-val").textContent = "0";
+          renderCanvas();
+        };
+
+        document.getElementById("input-welcome-name").oninput = (e) => { state.welcomeName = e.target.value; renderCanvas(); };
+        document.getElementById("select-company").onchange = (e) => {
+          state.companyOption = e.target.value;
+          const manual = document.getElementById("input-manual-company");
+          if (state.companyOption === "manual") manual.classList.remove("hidden"); else manual.classList.add("hidden");
+          renderCanvas();
+        };
+        document.getElementById("input-manual-company").oninput = (e) => { state.customCompanyName = e.target.value; renderCanvas(); };
+        document.getElementById("input-position").oninput = (e) => { state.position = e.target.value; renderCanvas(); };
+        joinInput.oninput = (e) => { state.joinDate = e.target.value; renderCanvas(); };
+        document.getElementById("input-email").oninput = (e) => { state.email = e.target.value; renderCanvas(); };
+        document.getElementById("input-placement").oninput = (e) => { state.placement = e.target.value; renderCanvas(); };
+
+        document.getElementById("input-birthday-name").oninput = (e) => { state.birthdayName = e.target.value; renderCanvas(); };
+        document.getElementById("input-birthday-age").oninput = (e) => { state.age = e.target.value; renderCanvas(); };
+        document.getElementById("input-birthday-placement").oninput = (e) => { state.birthdayPlacement = e.target.value; renderCanvas(); };
+        document.getElementById("check-show-age").onchange = (e) => { state.showAge = e.target.checked; renderCanvas(); };
+        document.getElementById("input-birthday-wish").oninput = (e) => { state.birthdayWish = e.target.value; renderCanvas(); };
+
+        document.getElementById("btn-generate-wish").onclick = async () => {
+          const btn = document.getElementById("btn-generate-wish");
+          btn.disabled = true; btn.textContent = "Menyusun Ucapan...";
+          try {
+            const resp = await fetch("/api/ai", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ action: "generate_wish", name: state.birthdayName, age: state.age, showAge: state.showAge, placement: state.birthdayPlacement }),
+            });
+            const data = await resp.json();
+            if (!resp.ok || !data.wish) throw new Error(data.error || "Gagal membuat ucapan.");
+            state.birthdayWish = data.wish;
+            document.getElementById("input-birthday-wish").value = data.wish;
+            renderCanvas(); showToast("Ucapan ulang tahun AI berhasil dibuat.", false);
+          } catch (err) { showToast(err.message || "Gagal menghubungi layanan AI.", true); }
+          finally { btn.disabled = false; btn.textContent = "✨ Generate Ucapan AI"; }
+        };
+
+        document.getElementById("btn-download-png").onclick = async () => {
+          await renderCanvas();
+          const prefix = state.mode === "welcome" ? "Welcome-On-Board" : "Happy-Birthday";
+          const raw = (state.mode === "welcome" ? state.welcomeName : state.birthdayName).trim().replace(/[^a-zA-Z0-9\s-]/g, "").replace(/\s+/g, "-") || "Karyawan-Satoria";
+          const a = document.createElement("a");
+          a.download = `${prefix}-${raw}.png`;
+          a.href = canvas.toDataURL("image/png");
+          a.click();
+          showToast("Gambar PNG HD berhasil diunduh.", false);
+        };
+
+        document.getElementById("btn-copy-image").onclick = async () => {
+          if (!navigator.clipboard || typeof ClipboardItem === "undefined") {
+            showToast("Browser tidak mendukung salin gambar langsung.", true); return;
+          }
+          try {
+            await renderCanvas();
+            const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+            await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+            document.getElementById("copy-btn-label").textContent = "Tersalin ke Clipboard";
+            showToast("Gambar disalin ke clipboard.", false);
+            setTimeout(() => { document.getElementById("copy-btn-label").textContent = "Salin Gambar (Copy Image)"; }, 2500);
+          } catch {
+            showToast("Akses clipboard dibatasi. Silakan gunakan Download Gambar (PNG).", true);
+          }
+        };
+
+        syncLogoButtons();
+        renderThemeButtons();
+        renderCanvas();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "Satoria Flash Card Studio",
+  "description": "Aplikasi web korporat untuk membuat dan mengunduh kartu ucapan Welcome On Board dan Happy Birthday resolusi HD (1600x900) dengan penyuntingan foto dan ucapan berbasis AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
